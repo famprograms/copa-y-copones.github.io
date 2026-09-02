@@ -1,0 +1,15 @@
+{
+  "name": "Copa & Copones",
+  "short_name": "Copa & Copones",
+  "description": "Gestión de torneos de golf: Medal Play, Laguneada y FourBall.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#EAEDDF",
+  "theme_color": "#1F4B36",
+  "icons": [
+    { "src": "icon192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

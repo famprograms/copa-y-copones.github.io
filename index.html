@@ -9,9 +9,6 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Copa & Copones">
-<link rel="manifest" href="manifest.json">
-<link rel="icon" href="favicon.png">
-<link rel="apple-touch-icon" href="appletouchicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap">
 <style id="app-style">
@@ -253,6 +250,16 @@
   .segblock{border-top:1px dashed var(--line);padding-top:12px;margin-top:12px;}
   .segblock:first-of-type{border-top:none;padding-top:0;margin-top:0;}
 
+  .stepn{
+    display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;
+    border-radius:50%;background:var(--pine);color:#fff;font-family:"Fraunces",serif;
+    font-weight:700;font-size:13px;margin-right:10px;vertical-align:middle;flex:none;
+  }
+  section.mode.local .stepn{background:var(--brass);}
+  .help-modehead{display:flex;align-items:baseline;gap:10px;margin-bottom:2px;}
+  .help-modehead .roman{font-family:"Fraunces",serif;font-size:20px;color:var(--pine);}
+  .help-modehead.local .roman{color:var(--brass);}
+
   .roundtabs{display:flex;gap:6px;margin-bottom:14px;}
   .roundtabs button{padding:7px 14px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);font-size:13px;font-weight:600;cursor:pointer;color:var(--text-dim);}
   .roundtabs button.active{background:var(--pine);border-color:var(--pine);color:#fff;}
@@ -443,7 +450,8 @@ var SCREENS_ALL = [
   {key:'players', label:'Jugadores'},
   {key:'draw', label:'Sorteo', fifaOnly:true},
   {key:'scores', label:'Scores'},
-  {key:'results', label:'Resultados'}
+  {key:'results', label:'Resultados'},
+  {key:'help', label:'Ayuda'}
 ];
 function visibleScreens(){
   return SCREENS_ALL.filter(function(s){
@@ -737,6 +745,7 @@ function renderShell(){
   else if (state.screen==='draw') content = renderDraw();
   else if (state.screen==='scores') content = renderScores();
   else if (state.screen==='results') content = renderResults();
+  else if (state.screen==='help') content = renderHelp();
   else content = renderHome();
 
   var showNav = state.mode && state.screen!=='home';
@@ -1140,6 +1149,115 @@ function fourballResultsTable(roundIdx, segId){
     return '<tr>'+posCell(row)+'<td>'+names+(row.tied?' <span class="hint">(empatado)</span>':'')+'<div class="hint">'+esc(row.lineName)+'</div></td><td class="num">'+row.total+'</td><td class="prize">'+(row.prizeAmount?fmtMoney(row.prizeAmount):'—')+'</td></tr>';
   }).join('');
   return '<div class="table-wrap"><table class="data"><thead><tr><th>Pos.</th><th>Pareja</th><th>Neto total</th><th>Premio</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+
+function helpStep(n, title, bodyHtml){
+  return '<div class="card"><h2><span class="stepn">'+n+'</span>'+esc(title)+'</h2><div class="sub" style="margin-top:8px;margin-left:38px">'+bodyHtml+'</div></div>';
+}
+function renderHelp(){
+  var html = '' +
+    '<div class="card">' +
+      '<h2>Guía rápida</h2>' +
+      '<div class="sub">La app tiene dos formas de armar un torneo. Acá va el paso a paso de cada una, con ejemplos reales.</div>' +
+    '</div>';
+
+  html += '<div class="help-modehead"><span class="roman" style="color:var(--pine)">I.</span><h2>Fecha FIFA</h2></div>' +
+    '<div class="hint" style="margin:-4px 0 4px">La app arma los equipos por vos.</div>';
+
+  html += helpStep(1, 'Elegís la modalidad',
+    'En <b>Inicio</b> tocás la tarjeta "Fecha FIFA". Es para cuando todavía no están armadas las líneas — solo tenés la lista de jugadores con su <b>index</b>.');
+
+  html += helpStep(2, 'Configurás el torneo',
+    'Hoyos (<b>18</b>, <b>36 en 2 días</b> o <b>54 en 3 días</b>), jugadores por línea, inscripción y el premio de cada juego y posición. ' +
+    'Con 36 u 54 hoyos, en "Juegos y premios" podés elegir si cada juego reparte premio <b>por día</b>, por el <b>total</b> acumulado, o ambos — cada tramo tiene su propia tabla de posiciones y montos.');
+
+  html += helpStep(3, 'Cargás jugadores y su index',
+    'A mano, pegando una lista ("Apellido, Nombre  index") o cargando cada uno con "+ Agregar jugador". El index solo se usa acá, para armar los copones.');
+
+  html += helpStep(4, 'Sorteo: copones, líneas y parejas',
+    'Con, por ejemplo, 12 jugadores y líneas de 4, la app arma <b>3 copones de 4</b> ordenados por index (los mejores en el copón 1) y reparte 1 tanda de cada copón entre las 3 líneas, así cada línea queda pareja en nivel. Adentro de cada línea sortea las parejas de FourBall.' +
+    '<div class="copon-grid" style="margin-top:12px">' +
+      '<div class="copon-card"><h4>Copón 1</h4><ol>' +
+        '<li>Merlini Mauricio<span class="h">2</span></li><li>Listello Agustín<span class="h">3</span></li>' +
+        '<li>Di Tondo Tomás<span class="h">3</span></li><li>Listello Sebastián<span class="h">8</span></li>' +
+      '</ol></div>' +
+      '<div class="copon-card"><h4>Copón 2</h4><ol>' +
+        '<li>Crespo Manuel<span class="h">9</span></li><li>Romero Davis<span class="h">10</span></li>' +
+        '<li>Listello Alfredo<span class="h">10</span></li><li>Di Tondo Pedro<span class="h">10</span></li>' +
+      '</ol></div>' +
+      '<div class="copon-card"><h4>Copón 3</h4><ol>' +
+        '<li>Federico Marty<span class="h">11</span></li><li>Albertengo Guillermo<span class="h">12</span></li>' +
+        '<li>Lola Jorge<span class="h">14</span></li><li>Ellena Andrés<span class="h">15</span></li>' +
+      '</ol></div>' +
+    '</div>' +
+    '<div class="line-card" style="margin-top:12px"><div class="lname">Línea 3 (una de las 3 sorteadas)</div>' +
+      '<ol style="margin:0 0 10px;padding-left:18px;font-size:13.5px;"><li>Di Tondo Tomás <span class="phcp">(3)</span></li><li>Listello Sebastián <span class="phcp">(8)</span></li><li>Albertengo Guillermo <span class="phcp">(12)</span></li><li>Lola Jorge <span class="phcp">(14)</span></li></ol>' +
+      '<div class="pair"><span class="pname">Listello Sebastián</span><span class="vs">&amp;</span><span class="pname">Di Tondo Tomás</span></div>' +
+      '<div class="pair"><span class="pname">Albertengo Guillermo</span><span class="vs">&amp;</span><span class="pname">Lola Jorge</span></div>' +
+    '</div>');
+
+  html += helpStep(5, 'Cargás los scores',
+    'El score neto de cada jugador, hoyo por hoyo. Si el torneo es de 36 o 54 hoyos, arriba de la tabla aparecen pestañas <b>Día 1 / Día 2 / Día 3</b> para ir cargando cada jornada. Cada hoyo se guarda solo, al instante, en este dispositivo.');
+
+  html += helpStep(6, 'Resultados y premios',
+    'Medal Play, Laguneada y FourBall se calculan solos. Si armaste premios por tramo (Día 1/Día 2/Total), vas a ver un bloque de resultados separado por cada tramo activado.' +
+    '<div class="table-wrap" style="margin-top:12px"><table class="data lb"><thead><tr><th>Pos.</th><th>Jugador</th><th>Neto</th><th>Premio</th></tr></thead><tbody>' +
+      '<tr><td class="pos p1">1º</td><td>Di Tondo Tomás</td><td class="num">71</td><td class="prize">$ 240.000</td></tr>' +
+      '<tr><td class="pos">2º–5º</td><td>Romero Davis <span class="hint">(empatado)</span></td><td class="num">74</td><td class="prize">$ 60.000</td></tr>' +
+      '<tr><td class="pos">2º–5º</td><td>Ellena Andrés <span class="hint">(empatado)</span></td><td class="num">74</td><td class="prize">$ 60.000</td></tr>' +
+      '<tr><td class="pos">6º</td><td>Merlini Mauricio</td><td class="num">75</td><td>—</td></tr>' +
+    '</tbody></table></div>' +
+    '<div class="banner" style="margin-top:10px"><div><b>Por qué $60.000 y no $100.000:</b> cuatro jugadores empataron en 74. Se suman los premios de 2º+3º+4º+5º ($100.000+$80.000+$60.000+$0) y se dividen en 4 → $60.000 para cada uno. El próximo jugador pasa directo a 6º.</div></div>');
+
+  html += '<div class="help-modehead local" style="margin-top:36px"><span class="roman" style="color:var(--brass)">II.</span><h2>Juego Local</h2></div>' +
+    '<div class="hint" style="margin:-4px 0 4px">Vos armás las líneas a mano.</div>';
+
+  html += helpStep(1, 'Elegís la modalidad',
+    'Tocás "Juego Local" cuando las líneas ya están definidas de antemano (por ejemplo, por la comisión del club) y solo hay que cargarlas.');
+
+  html += helpStep(2, 'Configurás el torneo',
+    'Hoyos (<b>9</b> o <b>18</b> — acá no hay días separados), premios, inscripción. También elegís la <b>modalidad de Laguneada</b>: la mejor bola, las dos mejores, o la mejor y la peor.');
+
+  html += helpStep(3, 'Cargás jugadores y armás las líneas a mano',
+    'Acá <b>no hace falta cargar index</b> — solo se usa para el sorteo automático de Fecha FIFA. Pegás la lista de nombres y después asignás cada uno a su línea con un selector.' +
+    '<div class="line-card" style="margin-top:12px"><div class="lname">Línea 2 (ejemplo)</div>' +
+      '<ol style="margin:0 0 10px;padding-left:18px;font-size:13.5px;"><li>Listello Agustín</li><li>Listello Sebastián</li><li>Merlini Mauricio</li></ol>' +
+      '<div class="pair"><span class="pname">Listello Agustín</span><span class="vs">&amp;</span><span class="pname">Listello Sebastián</span></div>' +
+      '<div class="hint" style="margin-top:6px">Sin pareja para FourBall: Merlini Mauricio</div>' +
+    '</div>' +
+    '<div class="hint" style="margin-top:8px">Con líneas de 3, siempre queda un jugador sin pareja de FourBall por línea — la app lo avisa en vez de inventar una pareja de una sola persona.</div>');
+
+  html += helpStep(4, 'Cargás los scores',
+    'Mismo mecanismo que en Fecha FIFA: neto hoyo por hoyo, para los 9 o 18 hoyos del torneo. Se guarda solo, al instante.');
+
+  html += helpStep(5, 'Resultados y premios',
+    'Acá también puede haber empate — por ejemplo, dos jugadores igualados en el primer puesto se reparten la plata de 1º y 2º entre los dos.' +
+    '<div class="table-wrap" style="margin-top:12px"><table class="data lb"><thead><tr><th>Pos.</th><th>Jugador</th><th>Neto</th><th>Premio</th></tr></thead><tbody>' +
+      '<tr><td class="pos p1">1º–2º</td><td>Listello Sebastián <span class="hint">(empatado)</span></td><td class="num">70</td><td class="prize">$ 70.000</td></tr>' +
+      '<tr><td class="pos p1">1º–2º</td><td>Romero David <span class="hint">(empatado)</span></td><td class="num">70</td><td class="prize">$ 70.000</td></tr>' +
+      '<tr><td class="pos">3º</td><td>Lola Jorge</td><td class="num">71</td><td class="prize">$ 20.000</td></tr>' +
+    '</tbody></table></div>' +
+    '<div class="banner" style="margin-top:10px"><div>($100.000 de 1º + $40.000 de 2º) ÷ 2 = <b>$70.000</b> para cada uno. El tercero pasa a cobrar el premio de 3º ($20.000), no el de 2º.</div></div>');
+
+  html += '<div class="card" style="margin-top:36px"><h2>Lo que comparten las dos modalidades</h2>' +
+    '<div class="grid-2" style="margin-top:12px">' +
+      '<div class="line-card"><div class="lname" style="color:var(--pine)">Importar sin tipear</div>' +
+        '<div style="font-size:13px;color:var(--text-dim)">Pegás el texto de la convocatoria o de la lista de jugadores (copiado de un mail, Word o PDF) y la app completa los datos sola — reconoce cualquier cantidad de posiciones de premio por juego.</div></div>' +
+      '<div class="line-card"><div class="lname" style="color:var(--pine)">Exportar para compartir</div>' +
+        '<div style="font-size:13px;color:var(--text-dim)">Desde Resultados, exportás una imagen lista para mandar por WhatsApp, o imprimís / guardás como PDF directo con el diálogo de tu navegador.</div></div>' +
+      '<div class="line-card"><div class="lname" style="color:var(--pine)">Cambiar de modalidad sin perder nada</div>' +
+        '<div style="font-size:13px;color:var(--text-dim)">Si cambiás de Fecha FIFA a Local (o al revés), los jugadores se mantienen. Si la cantidad de hoyos no es válida para la nueva modalidad, se ajusta sola a 18.</div></div>' +
+      '<div class="line-card"><div class="lname" style="color:var(--pine)">Empates, siempre bien repartidos</div>' +
+        '<div style="font-size:13px;color:var(--text-dim)">En cualquier juego, si dos o más empatan en una posición, la plata de esas posiciones se junta y se reparte en partes iguales entre ellos.</div></div>' +
+    '</div>' +
+  '</div>';
+
+  html += '<div class="card"><h2>Tus datos, en este dispositivo</h2>' +
+    '<div class="sub">Esta versión no depende de ninguna cuenta ni de internet para guardar. Cada cambio se guarda solo, al instante, en la memoria de este navegador — nadie más lo ve.</div>' +
+    '<div class="banner"><div>Si vas a cambiar de celular, borrar datos del navegador, o simplemente querés un respaldo: andá a <b>Configuración</b> y usá <b>"Descargar copia"</b>. Después la restaurás desde ahí mismo con <b>"Restaurar copia"</b>.</div></div>' +
+  '</div>';
+
+  return html;
 }
 
 /* ---------- event binding (delegated, bound once) ---------- */
